@@ -34,3 +34,4 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRE
 endmacro()
 
 package_add_test(sparse_matrix test_sparse_matrix.cpp Eigen3::Eigen)
+package_add_test(sparse_jonker_volgenant_solver test_sparse_jonker_volgenant_solver.cpp Eigen3::Eigen)

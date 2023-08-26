@@ -22,6 +22,8 @@ public:
   const auto &val() const noexcept;
   const auto &col_ind() const noexcept;
   const auto &row_ptr() const noexcept;
+  auto rows() const noexcept;
+  auto cols() const noexcept;
 
 private:
   std::vector<T> m_val{};
@@ -76,6 +78,16 @@ const auto &CompressedSparseRowRepresentation<T>::col_ind() const noexcept {
 template <typename T>
 const auto &CompressedSparseRowRepresentation<T>::row_ptr() const noexcept {
   return m_row_ptr;
+}
+
+template <typename T>
+auto CompressedSparseRowRepresentation<T>::rows() const noexcept {
+  return m_rows;
+}
+
+template <typename T>
+auto CompressedSparseRowRepresentation<T>::cols() const noexcept {
+  return m_cols;
 }
 
 } // namespace asap
