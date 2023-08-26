@@ -20,6 +20,7 @@ endif()
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST
+    include/sparse_matrix.hpp
   )
 
 set(TARGET_NAME asap)

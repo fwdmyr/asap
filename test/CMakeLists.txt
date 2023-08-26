@@ -33,4 +33,4 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRE
     set_target_properties(${TESTNAME} PROPERTIES FOLDER test)
 endmacro()
 
-package_add_test(test_common test_common.cpp Eigen3::Eigen)
+package_add_test(sparse_matrix test_sparse_matrix.cpp Eigen3::Eigen)
