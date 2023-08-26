@@ -27,8 +27,8 @@ public:
 
 private:
   std::vector<T> m_val{};
-  std::vector<std::size_t> m_col_ind{};
-  std::vector<std::size_t> m_row_ptr{};
+  std::vector<int> m_col_ind{};
+  std::vector<int> m_row_ptr{};
   Eigen::Index m_rows{};
   Eigen::Index m_cols{};
 };
