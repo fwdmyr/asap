@@ -34,8 +34,6 @@ template <typename SparseMatrixT>
 std::enable_if_t<is_row_major<SparseMatrixT>, Result>
 SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 
-  sm.makeCompressed();
-
   auto csr =
       CompressedSparseRowRepresentation<typename SparseMatrixT::Scalar>{sm};
 

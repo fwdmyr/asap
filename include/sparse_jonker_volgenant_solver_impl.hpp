@@ -11,8 +11,8 @@ namespace internal {
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
           typename IA = std::allocator<I>>
-void lapjvsp_update_dual(I &nc, Container<T, TA> &d, Container<T, TA> &v,
-                         Container<I, IA> &todo, I &last, T &min_diff) {
+void lapjvsp_update_dual(I nc, const Container<T, TA> &d, Container<T, TA> &v,
+                         const Container<I, IA> &todo, I last, T min_diff) {
   auto j0 = I{0};
   for (I k = last; k < nc; ++k) {
     j0 = todo[k];
@@ -22,8 +22,8 @@ void lapjvsp_update_dual(I &nc, Container<T, TA> &d, Container<T, TA> &v,
 
 template <template <typename, typename> typename Container, typename I,
           typename IA = std::allocator<I>>
-void lapjvsp_update_assignments(Container<I, IA> &lab, Container<I, IA> &y,
-                                Container<I, IA> &x, I &j, I &i0) {
+void lapjvsp_update_assignments(const Container<I, IA> &lab, Container<I, IA> &y,
+                                Container<I, IA> &x, I &j, I i0) {
   auto i = I{0};
   auto k = I{0};
   while (true) {
@@ -43,10 +43,10 @@ template <template <typename, typename> typename Container, typename T,
           typename IA = std::allocator<I>>
 [[nodiscard]] auto lapjvsp_single_l(
     I l, I nc, Container<T, TA> &d, Container<bool, std::allocator<bool>> &ok,
-    Container<I, IA> &free, const Container<I, IA> &first,
+    const Container<I, IA> &free, const Container<I, IA> &first,
     const Container<I, IA> &kk, const Container<T, TA> &cc, Container<T, TA> &v,
     Container<I, IA> &lab, Container<I, IA> &todo, Container<I, IA> &y,
-    Container<I, IA> &x, I &td1) {
+    Container<I, IA> &x, I td1) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
