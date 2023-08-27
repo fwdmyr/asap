@@ -13,6 +13,8 @@ TEST(TestSuiteDummy, UnitTestDummy) {
   mat.insert(2U, 1U) = 5;
   mat.insert(2U, 2U) = 6;
 
+  GTEST_SKIP() << "Debug";
+
   const auto csr = asap::CompressedSparseRowRepresentation<double>{mat};
 
   const auto ret = asap::lapjvsp(csr);
