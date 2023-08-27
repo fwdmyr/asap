@@ -17,6 +17,8 @@ std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {
   return os;
 }
 
+namespace internal {
+
 template <template <typename, typename> typename Container, typename T,
           typename Alloc = std::allocator<T>>
 [[nodiscard]] auto argsort(const Container<T, Alloc> &c) {
@@ -48,6 +50,8 @@ void reorder(Container<I, IA> order, Container<T, TA> &v) {
     }
   }
 }
+
+} // namespace internal
 
 } // namespace asap
 

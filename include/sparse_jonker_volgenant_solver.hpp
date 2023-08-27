@@ -48,9 +48,9 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
                              csr.rows(), csr.cols());
 
   if (transpose) {
-    const auto idx = argsort(b);
-    reorder(idx, a);
-    reorder(idx, b);
+    const auto idx = internal::argsort(b);
+    internal::reorder(idx, a);
+    internal::reorder(idx, b);
   }
 
   return (transpose) ? Result{std::move(b), std::move(a)}
