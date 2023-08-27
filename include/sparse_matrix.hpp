@@ -2,6 +2,15 @@
 #include <eigen3/Eigen/src/Core/util/Macros.h>
 namespace asap {
 
+template <typename T>
+static constexpr auto is_row_major =
+    std::is_same_v<std::decay_t<T>,
+                   Eigen::SparseMatrix<typename T::Scalar, Eigen::RowMajor>>;
+template <typename T>
+static constexpr auto is_col_major =
+    std::is_same_v<std::decay_t<T>,
+                   Eigen::SparseMatrix<typename T::Scalar, Eigen::ColMajor>>;
+
 template <template <typename, typename> typename Container, typename T,
           typename Alloc>
 std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {

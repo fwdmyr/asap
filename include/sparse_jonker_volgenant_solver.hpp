@@ -1,16 +1,40 @@
 #include "sparse_jonker_volgenant_solver_impl.hpp"
-#include <eigen3/Eigen/src/Core/util/Constants.h>
+#include <algorithm>
+#include <numeric>
 
 namespace asap {
 
-template <typename T>
-static constexpr auto is_row_major =
-    std::is_same_v<std::decay_t<T>,
-                   Eigen::SparseMatrix<typename T::Scalar, Eigen::RowMajor>>;
-template <typename T>
-static constexpr auto is_col_major =
-    std::is_same_v<std::decay_t<T>,
-                   Eigen::SparseMatrix<typename T::Scalar, Eigen::ColMajor>>;
+template <template <typename, typename> typename Container, typename T,
+          typename Alloc = std::allocator<T>>
+auto argsort(const Container<T, Alloc> &c) {
+
+  auto idx = Container<std::size_t, std::allocator<std::size_t>>(c.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  std::stable_sort(idx.begin(), idx.end(),
+                   [&c](auto lhs, auto rhs) { return c[lhs] < c[rhs]; });
+
+  return idx;
+}
+
+template <typename OrderIter, typename ValueIter>
+void reorder(OrderIter order_begin, OrderIter order_end, ValueIter v) {
+  using IndexT = typename std::iterator_traits<OrderIter>::value_type;
+
+  auto remaining = order_end - 1 - order_begin;
+  for (IndexT s = IndexT{}, d; remaining > 0; ++s) {
+    for (d = order_begin[s]; d > s; d = order_begin[d])
+      if (d == s) {
+        --remaining;
+        auto temp = v[s];
+        while (d = order_begin[d], d != s) {
+          std::swap(temp, v[d]);
+          --remaining;
+        }
+        v[s] = temp;
+      }
+  }
+}
 
 class SparseJonkerVolgenantSolver {
 public:
@@ -50,14 +74,20 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
         sm.transpose()};
   }
 
-  auto a = std::vector<Eigen::Index>{};
-  std::generate_n(std::back_inserter(a), std::min(csr.rows(), csr.cols()),
-                  [incr = 0]() mutable { return incr++; });
+  auto a = std::vector<Eigen::Index>(std::min(csr.rows(), csr.cols()));
+  std::iota(a.begin(), a.end(), 0);
 
   auto b = internal::lapjvsp(csr.row_ptr(), csr.col_ind(), csr.val(),
                              csr.rows(), csr.cols());
 
-  return std::make_pair(std::move(a), std::move(b));
+  if (transpose) {
+    const auto idx = argsort(b);
+    reorder(idx.cbegin(), idx.cend(), a.begin());
+    reorder(idx.cbegin(), idx.cend(), b.begin());
+  }
+
+  return (transpose) ? std::make_pair(std::move(b), std::move(a))
+                     : std::make_pair(std::move(a), std::move(b));
 }
 
 } // namespace asap
