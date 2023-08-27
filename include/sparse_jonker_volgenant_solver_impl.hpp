@@ -38,13 +38,12 @@ void lapjvsp_update_assignments(Container<I, IA> &lab, Container<I, IA> &y,
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
           typename IA = std::allocator<I>>
-auto lapjvsp_single_l(I l, I nc, Container<T, TA> &d,
-                      Container<bool, std::allocator<bool>> &ok,
-                      Container<I, IA> &free, const Container<I, IA> &first,
-                      const Container<I, IA> &kk, const Container<T, TA> &cc,
-                      Container<T, TA> &v, Container<I, IA> &lab,
-                      Container<I, IA> &todo, Container<I, IA> &y,
-                      Container<I, IA> &x, I &td1) {
+[[nodiscard]] auto lapjvsp_single_l(
+    I l, I nc, Container<T, TA> &d, Container<bool, std::allocator<bool>> &ok,
+    Container<I, IA> &free, const Container<I, IA> &first,
+    const Container<I, IA> &kk, const Container<T, TA> &cc, Container<T, TA> &v,
+    Container<I, IA> &lab, Container<I, IA> &todo, Container<I, IA> &y,
+    Container<I, IA> &x, I &td1) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
@@ -158,8 +157,9 @@ auto lapjvsp_single_l(I l, I nc, Container<T, TA> &d,
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
           typename IA = std::allocator<I>>
-auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
-             const Container<T, TA> &cc, I nr, I nc) {
+[[nodiscard]] auto lapjvsp(const Container<I, IA> &first,
+                           const Container<I, IA> &kk,
+                           const Container<T, TA> &cc, I nr, I nc) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
@@ -307,6 +307,6 @@ auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
   return x;
 }
 
-} // namespace Iernal
+} // namespace internal
 
 } // namespace asap

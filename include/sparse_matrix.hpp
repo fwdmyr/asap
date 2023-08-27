@@ -22,17 +22,21 @@ std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {
 
 template <typename T> class CompressedSparseRowRepresentation {
 public:
-  CompressedSparseRowRepresentation() = default;
   explicit CompressedSparseRowRepresentation(
       const Eigen::SparseMatrix<T, Eigen::RowMajor> &s) noexcept;
+  CompressedSparseRowRepresentation(const std::vector<T> &val,
+                                    const std::vector<Eigen::Index> &col_ind,
+                                    const std::vector<Eigen::Index> &row_ptr,
+                                    Eigen::Index rows,
+                                    Eigen::Index cols) noexcept;
 
-  std::ostream &print(std::ostream &os) const noexcept;
+  [[nodiscard]] std::ostream &print(std::ostream &os) const noexcept;
 
-  const auto &val() const noexcept;
-  const auto &col_ind() const noexcept;
-  const auto &row_ptr() const noexcept;
-  auto rows() const noexcept;
-  auto cols() const noexcept;
+  [[nodiscard]] const auto &val() const noexcept;
+  [[nodiscard]] const auto &col_ind() const noexcept;
+  [[nodiscard]] const auto &row_ptr() const noexcept;
+  [[nodiscard]] auto rows() const noexcept;
+  [[nodiscard]] auto cols() const noexcept;
 
 private:
   std::vector<T> m_val{};
@@ -55,6 +59,14 @@ CompressedSparseRowRepresentation<T>::CompressedSparseRowRepresentation(
 }
 
 template <typename T>
+CompressedSparseRowRepresentation<T>::CompressedSparseRowRepresentation(
+    const std::vector<T> &val, const std::vector<Eigen::Index> &col_ind,
+    const std::vector<Eigen::Index> &row_ptr, Eigen::Index rows,
+    Eigen::Index cols) noexcept
+    : m_val{val}, m_col_ind{col_ind}, m_row_ptr{row_ptr}, m_rows{rows},
+      m_cols{cols} {}
+
+template <typename T>
 std::ostream &
 CompressedSparseRowRepresentation<T>::print(std::ostream &os) const noexcept {
   os << "CSR Matrix Representation" << '\n';
@@ -75,7 +87,8 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 template <typename T>
-const auto &CompressedSparseRowRepresentation<T>::val() const noexcept {
+const auto &
+CompressedSparseRowRepresentation<T>::val() const noexcept {
   return m_val;
 }
 

@@ -6,7 +6,7 @@ namespace asap {
 
 template <template <typename, typename> typename Container, typename T,
           typename Alloc = std::allocator<T>>
-auto argsort(const Container<T, Alloc> &c) {
+[[nodiscard]] auto argsort(const Container<T, Alloc> &c) {
 
   auto idx = Container<std::size_t, std::allocator<std::size_t>>(c.size());
   std::iota(idx.begin(), idx.end(), 0);
@@ -42,11 +42,11 @@ public:
       std::pair<std::vector<Eigen::Index>, std::vector<Eigen::Index>>;
 
   template <typename SparseMatrixT>
-  static std::enable_if_t<is_col_major<SparseMatrixT>, Result>
+  [[nodiscard]] static std::enable_if_t<is_col_major<SparseMatrixT>, Result>
   Solve(SparseMatrixT &&sm);
 
   template <typename SparseMatrixT>
-  static std::enable_if_t<is_row_major<SparseMatrixT>, Result>
+  [[nodiscard]] static std::enable_if_t<is_row_major<SparseMatrixT>, Result>
   Solve(SparseMatrixT &&sm);
 };
 
