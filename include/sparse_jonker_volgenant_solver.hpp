@@ -30,21 +30,21 @@ inline void lapjvsp_update_assignments(std::vector<int> &lab,
 }
 
 template <typename T>
-auto lapjvsp_single_l(std::size_t &l, int &nc, std::vector<T> &d, std::vector<bool> &ok,
-                      std::vector<int> &free, std::vector<int> &first,
-                      std::vector<int> &kk, std::vector<T> &cc,
-                      std::vector<T> &v, std::vector<int> &lab,
-                      std::vector<int> &todo, std::vector<int> &y,
-                      std::vector<int> &x, int &td1) {
+auto lapjvsp_single_l(std::size_t l, int &nc, std::vector<T> &d,
+                      std::vector<bool> &ok, std::vector<int> &free,
+                      std::vector<int> &first, std::vector<int> &kk,
+                      std::vector<T> &cc, std::vector<T> &v,
+                      std::vector<int> &lab, std::vector<int> &todo,
+                      std::vector<int> &y, std::vector<int> &x, int &td1) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
-  auto jp = int{0};
+  // auto jp = int{0};
   auto i0 = int{0};
   auto j = int{0};
-  auto t = int{0};
+  // auto t = int{0};
   auto td2 = int{0};
-  auto hp = int{0};
+  // auto hp = int{0};
   auto last = int{0};
   auto j0 = int{0};
   auto i = int{0};
@@ -54,14 +54,14 @@ auto lapjvsp_single_l(std::size_t &l, int &nc, std::vector<T> &d, std::vector<bo
   auto h = T{0.0};
   auto vj = T{0.0};
 
-  for (std::size_t z = 0; z < nc; ++z) {
-    d[z] = INF;
-    ok[z] = false;
+  for (std::size_t jp = 0; jp < nc; ++jp) {
+    d[jp] = INF;
+    ok[jp] = false;
   }
   min_diff = INF;
   i0 = free[l];
 
-  for (std::size_t t = first[i0]; t < first[i0] + 1; ++t) {
+  for (std::size_t t = first[i0]; t < first[i0 + 1]; ++t) {
     j = kk[t];
     dj = cc[t] - v[j];
     d[j] = dj;
@@ -129,7 +129,7 @@ auto lapjvsp_single_l(std::size_t &l, int &nc, std::vector<T> &d, std::vector<bo
       for (std::size_t jp = 0; jp < nc; ++jp) {
         if ((d[jp] != INF) && (d[jp] <= min_diff) && !ok[jp]) {
           if (d[jp] < min_diff) {
-            --td1;
+            td1 = -1;
             min_diff = d[jp];
           }
           ++td1;
@@ -162,7 +162,7 @@ auto lapjvsp(const CompressedSparseRowRepresentation<T> &csr) {
 
   auto l0 = int{0};
   auto jp = int{0};
-  auto t = int{0};
+  // auto t = int{0};
   auto i = int{0};
   auto lp = int{0};
   auto j1 = int{0};
@@ -189,8 +189,8 @@ auto lapjvsp(const CompressedSparseRowRepresentation<T> &csr) {
   auto lab = std::vector<int>(nc, int{0});
 
   if (nr == nc) {
-    for (std::size_t jp = 0; jp < nc; ++jp) {
-      v[jp] = INF;
+    for (std::size_t z = 0; z < nc; ++z) {
+      v[z] = INF;
     }
     for (std::size_t z = 0; z < nr; ++z) {
       for (std::size_t t = first[z]; t < first[z + 1]; ++t) {
@@ -201,15 +201,15 @@ auto lapjvsp(const CompressedSparseRowRepresentation<T> &csr) {
         }
       }
     }
-    for (std::size_t jp = nc - 1; jp >= 0; --jp) {
-      i = y[jp];
+    for (std::size_t z = nc - 1; z >= 0; --z) {
+      i = y[z];
       if (i == -1) {
         throw std::runtime_error("No full matching exists");
       }
       if (x[i] == -1) {
-        x[i] = jp;
+        x[i] = z;
       } else {
-        y[jp] = -1;
+        y[z] = -1;
         xinv[i] = true;
       }
     }
@@ -221,7 +221,7 @@ auto lapjvsp(const CompressedSparseRowRepresentation<T> &csr) {
       if (x[z] != -1) {
         min_diff = INF;
         j1 = x[z];
-        for (std::size_t t = first[z]; t < first[z] + 1; ++z) {
+        for (std::size_t t = first[z]; t < first[z + 1]; ++t) {
           jp = kk[t];
           if (jp != j1) {
             if (cc[t] - v[jp] < min_diff) {
@@ -247,8 +247,8 @@ auto lapjvsp(const CompressedSparseRowRepresentation<T> &csr) {
       while (h < l0p) {
         i = free[h];
         ++h;
-        --j0p;
-        --j1p;
+        j0p = -1;
+        j1p = -1;
         v0 = INF;
         vj = INF;
         for (std::size_t t = first[i]; t < first[i + 1]; ++t) {
