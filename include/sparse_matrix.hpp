@@ -1,21 +1,21 @@
 #include <Eigen/SparseCore>
-#include <vector>
-
+#include <eigen3/Eigen/src/Core/util/Macros.h>
 namespace asap {
 
-    template <template <typename, typename> typename Container, typename T,
-             typename Alloc>
-                 std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {
-                     for (const auto &e : c) {
-                         os << e << ' ';
-                     }
-                     return os;
-                 }
+template <template <typename, typename> typename Container, typename T,
+          typename Alloc>
+std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {
+  for (const auto &e : c) {
+    os << e << ' ';
+  }
+  return os;
+}
 
 template <typename T> class CompressedSparseRowRepresentation {
 public:
+  CompressedSparseRowRepresentation() = default;
   explicit CompressedSparseRowRepresentation(
-      const Eigen::SparseMatrix<T, Eigen::RowMajor> &sm) noexcept;
+      const Eigen::SparseMatrix<T, Eigen::RowMajor> &s) noexcept;
 
   std::ostream &print(std::ostream &os) const noexcept;
 
@@ -27,10 +27,10 @@ public:
 
 private:
   std::vector<T> m_val{};
-  std::vector<int> m_col_ind{};
-  std::vector<int> m_row_ptr{};
-  int m_rows{};
-  int m_cols{};
+  std::vector<Eigen::Index> m_col_ind{};
+  std::vector<Eigen::Index> m_row_ptr{};
+  Eigen::Index m_rows{};
+  Eigen::Index m_cols{};
 };
 
 template <typename T>
@@ -39,7 +39,7 @@ CompressedSparseRowRepresentation<T>::CompressedSparseRowRepresentation(
     : m_val{sm.valuePtr(), sm.valuePtr() + sm.nonZeros()},
       m_col_ind{sm.innerIndexPtr(), sm.innerIndexPtr() + sm.nonZeros()},
       m_row_ptr{sm.outerIndexPtr(), sm.outerIndexPtr() + sm.outerSize()},
-      m_rows{static_cast<int>(sm.rows())}, m_cols{static_cast<int>(sm.cols())} {
+      m_rows{sm.rows()}, m_cols{sm.cols()} {
   if (!m_row_ptr.empty()) {
     m_row_ptr.push_back(m_row_ptr.back() + sm.nonZeros() - sm.innerSize());
   }

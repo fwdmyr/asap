@@ -13,16 +13,14 @@ TEST(TestSuiteDummy, UnitTestDummy) {
   mat.insert(2U, 1U) = 5;
   mat.insert(2U, 2U) = 6;
 
-  const auto csr = asap::CompressedSparseRowRepresentation<double>{mat};
-
-  const auto ret = asap::SparseJonkerVolgenantSolver::Solve(csr);
+  const auto ret = asap::SparseJonkerVolgenantSolver::Solve(std::move(mat));
 
   for (std::size_t i = 0; i < ret.first.size(); ++i) {
-      std::cerr << ret.first[i] << ' ';
+    std::cerr << ret.first[i] << ' ';
   }
   std::cerr << '\n';
   for (std::size_t i = 0; i < ret.second.size(); ++i) {
-      std::cerr << ret.second[i] << ' ';
+    std::cerr << ret.second[i] << ' ';
   }
   std::cerr << '\n';
 }
