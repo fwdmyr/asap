@@ -36,11 +36,13 @@ void reorder(OrderIter order_begin, OrderIter order_end, ValueIter v) {
   }
 }
 
+struct Result {
+  std::vector<Eigen::Index> row_idx{};
+  std::vector<Eigen::Index> col_idx{};
+};
+
 class SparseJonkerVolgenantSolver {
 public:
-  using Result =
-      std::pair<std::vector<Eigen::Index>, std::vector<Eigen::Index>>;
-
   template <typename SparseMatrixT>
   [[nodiscard]] static std::enable_if_t<is_col_major<SparseMatrixT>, Result>
   Solve(SparseMatrixT &&sm);
@@ -51,8 +53,7 @@ public:
 };
 
 template <typename SparseMatrixT>
-std::enable_if_t<is_col_major<SparseMatrixT>,
-                 SparseJonkerVolgenantSolver::Result>
+std::enable_if_t<is_col_major<SparseMatrixT>, Result>
 SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
   auto sm_row_major = static_cast<
       Eigen::SparseMatrix<typename SparseMatrixT::Scalar, Eigen::RowMajor>>(sm);
@@ -60,8 +61,7 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 }
 
 template <typename SparseMatrixT>
-std::enable_if_t<is_row_major<SparseMatrixT>,
-                 SparseJonkerVolgenantSolver::Result>
+std::enable_if_t<is_row_major<SparseMatrixT>, Result>
 SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 
   auto csr =
@@ -86,8 +86,8 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
     reorder(idx.cbegin(), idx.cend(), b.begin());
   }
 
-  return (transpose) ? std::make_pair(std::move(b), std::move(a))
-                     : std::make_pair(std::move(a), std::move(b));
+  return (transpose) ? Result{std::move(b), std::move(a)}
+                     : Result{std::move(a), std::move(b)};
 }
 
 } // namespace asap
