@@ -8,35 +8,34 @@ namespace asap {
 
 namespace internal {
 
+/** @brief Solves the sparse assignment problem using LAPJVsp.
+ *
+ *  This implementation is a port of the CPython implementation of LAPJVsp in
+ * the scipy package [1] which itself is a port of the original Pascal
+ * implementation by Anton Volgenant which is available on [2]. LAPJVS.P is
+ * licensed under the BSD-3 license and with copyright A. Volgenant/Amsterdam
+ * School of Economics, University of Amsterdam.
+ *
+ * A description of the algorithm in detail can be found in the original
+ * publication [3]. The API description of the scipy implementation [4] provides
+ * additional information.
+ *
+ * Source index:
+ * [1] https://scipy.org/
+ * [2] http://www.assignmentproblems.com/LAPJV.htm
+ * [3] Roy Jonker and Anton Volgenant:
+ *     A Shortest Augmenting Path Algorithm for Dense and Sparse Linear
+ *     Assignment Problems.
+ *     Computing 38:325-340, 1987.
+ * [4] https://docs.scipy.org/doc/scipy/reference/generated/
+ *     scipy.sparse.csgraph.min_weight_full_bipartite_matching.html/
+ */
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
           typename IA = std::allocator<I>>
-void lapjvsp_update_dual(I nc, const Container<T, TA> &d, Container<T, TA> &v,
-                         const Container<I, IA> &todo, I last, T min_diff) {
-  auto j0 = I{0};
-  for (I k = last; k < nc; ++k) {
-    j0 = todo[k];
-    v[j0] += (d[j0] - min_diff);
-  }
-}
-
-template <template <typename, typename> typename Container, typename I,
-          typename IA = std::allocator<I>>
-void lapjvsp_update_assignments(const Container<I, IA> &lab, Container<I, IA> &y,
-                                Container<I, IA> &x, I &j, I i0) {
-  auto i = I{0};
-  auto k = I{0};
-  while (true) {
-    i = lab[j];
-    y[j] = i;
-    k = j;
-    j = x[i];
-    x[i] = k;
-    if (i == i0) {
-      return;
-    }
-  }
-}
+[[nodiscard]] auto lapjvsp(const Container<I, IA> &first,
+                           const Container<I, IA> &kk,
+                           const Container<T, TA> &cc, I nr, I nc);
 
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
@@ -46,123 +45,23 @@ template <template <typename, typename> typename Container, typename T,
     const Container<I, IA> &free, const Container<I, IA> &first,
     const Container<I, IA> &kk, const Container<T, TA> &cc, Container<T, TA> &v,
     Container<I, IA> &lab, Container<I, IA> &todo, Container<I, IA> &y,
-    Container<I, IA> &x, I td1) {
+    Container<I, IA> &x, I td1);
 
-  static constexpr auto INF = std::numeric_limits<T>::max();
-
-  auto i0 = I{0};
-  auto j = I{0};
-  auto td2 = I{0};
-  auto last = I{0};
-  auto j0 = I{0};
-  auto i = I{0};
-  auto tp = I{0};
-  auto min_diff = T{0.0};
-  auto dj = T{0.0};
-  auto h = T{0.0};
-  auto vj = T{0.0};
-
-  for (I jp = 0; jp < nc; ++jp) {
-    d[jp] = INF;
-    ok[jp] = false;
-  }
-  min_diff = INF;
-  i0 = free[l];
-
-  for (I t = first[i0]; t < first[i0 + 1]; ++t) {
-    j = kk[t];
-    dj = cc[t] - v[j];
-    d[j] = dj;
-    lab[j] = i0;
-    if (dj <= min_diff) {
-      if (dj < min_diff) {
-        td1 = -1;
-        min_diff = dj;
-      }
-      ++td1;
-      todo[td1] = j;
-    }
-  }
-  for (I hp = 0; hp < td1 + 1; ++hp) {
-    j = todo[hp];
-    if (y[j] == -1) {
-      lapjvsp_update_assignments(lab, y, x, j, i0);
-      return td1;
-    }
-    ok[j] = true;
-  }
-  td2 = nc - 1;
-  last = nc;
-
-  while (true) {
-    if (td1 < 0) {
-      throw std::runtime_error("No full matching exists");
-    }
-    j0 = todo[td1];
-    --td1;
-    i = y[j0];
-    todo[td2] = j0;
-    --td2;
-    tp = first[i];
-    while (kk[tp] != j0) {
-      ++tp;
-    }
-    h = cc[tp] - v[j0] - min_diff;
-
-    for (I t = first[i]; t < first[i + 1]; ++t) {
-      j = kk[t];
-      if (!ok[j]) {
-        vj = cc[t] - v[j] - h;
-        if (vj < d[j]) {
-          d[j] = vj;
-          lab[j] = i;
-          if (vj == min_diff) {
-            if (y[j] == -1) {
-              lapjvsp_update_dual(nc, d, v, todo, last, min_diff);
-              lapjvsp_update_assignments(lab, y, x, j, i0);
-              return td1;
-            }
-            ++td1;
-            todo[td1] = j;
-            ok[j] = true;
-          }
-        }
-      }
-    }
-
-    if (td1 == -1) {
-      min_diff = INF;
-      last = td2 + 1;
-
-      for (I jp = 0; jp < nc; ++jp) {
-        if ((d[jp] != INF) && (d[jp] <= min_diff) && !ok[jp]) {
-          if (d[jp] < min_diff) {
-            td1 = -1;
-            min_diff = d[jp];
-          }
-          ++td1;
-          todo[td1] = jp;
-        }
-      }
-      for (I hp = 0; hp < td1 + 1; ++hp) {
-        j = todo[hp];
-        if (y[j] == -1) {
-          lapjvsp_update_dual(nc, d, v, todo, last, min_diff);
-          lapjvsp_update_assignments(lab, y, x, j, i0);
-          return td1;
-        }
-        ok[j] = true;
-      }
-    }
-  }
-}
-
+template <template <typename, typename> typename Container, typename I,
+          typename IA = std::allocator<I>>
+void lapjvsp_update_assignments(const Container<I, IA> &lab,
+                                Container<I, IA> &y, Container<I, IA> &x, I &j,
+                                I i0);
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
           typename IA = std::allocator<I>>
-[[nodiscard]] auto lapjvsp(const Container<I, IA> &first,
-                           const Container<I, IA> &kk,
-                           const Container<T, TA> &cc, I nr, I nc) {
+void lapjvsp_update_dual(I nc, const Container<T, TA> &d, Container<T, TA> &v,
+                         const Container<I, IA> &todo, I last, T min_diff);
+
+template <template <typename, typename> typename Container, typename T,
+          typename I, typename TA, typename IA>
+auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
+             const Container<T, TA> &cc, I nr, I nc) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
@@ -308,6 +207,155 @@ template <template <typename, typename> typename Container, typename T,
                            x, td1);
   }
   return x;
+}
+
+template <template <typename, typename> typename Container, typename T,
+          typename I, typename TA, typename IA>
+auto lapjvsp_single_l(I l, I nc, Container<T, TA> &d,
+                      Container<bool, std::allocator<bool>> &ok,
+                      const Container<I, IA> &free,
+                      const Container<I, IA> &first, const Container<I, IA> &kk,
+                      const Container<T, TA> &cc, Container<T, TA> &v,
+                      Container<I, IA> &lab, Container<I, IA> &todo,
+                      Container<I, IA> &y, Container<I, IA> &x, I td1) {
+
+  static constexpr auto INF = std::numeric_limits<T>::max();
+
+  auto i0 = I{0};
+  auto j = I{0};
+  auto td2 = I{0};
+  auto last = I{0};
+  auto j0 = I{0};
+  auto i = I{0};
+  auto tp = I{0};
+  auto min_diff = T{0.0};
+  auto dj = T{0.0};
+  auto h = T{0.0};
+  auto vj = T{0.0};
+
+  for (I jp = 0; jp < nc; ++jp) {
+    d[jp] = INF;
+    ok[jp] = false;
+  }
+  min_diff = INF;
+  i0 = free[l];
+
+  for (I t = first[i0]; t < first[i0 + 1]; ++t) {
+    j = kk[t];
+    dj = cc[t] - v[j];
+    d[j] = dj;
+    lab[j] = i0;
+    if (dj <= min_diff) {
+      if (dj < min_diff) {
+        td1 = -1;
+        min_diff = dj;
+      }
+      ++td1;
+      todo[td1] = j;
+    }
+  }
+  for (I hp = 0; hp < td1 + 1; ++hp) {
+    j = todo[hp];
+    if (y[j] == -1) {
+      lapjvsp_update_assignments(lab, y, x, j, i0);
+      return td1;
+    }
+    ok[j] = true;
+  }
+  td2 = nc - 1;
+  last = nc;
+
+  while (true) {
+    if (td1 < 0) {
+      throw std::runtime_error("No full matching exists");
+    }
+    j0 = todo[td1];
+    --td1;
+    i = y[j0];
+    todo[td2] = j0;
+    --td2;
+    tp = first[i];
+    while (kk[tp] != j0) {
+      ++tp;
+    }
+    h = cc[tp] - v[j0] - min_diff;
+
+    for (I t = first[i]; t < first[i + 1]; ++t) {
+      j = kk[t];
+      if (!ok[j]) {
+        vj = cc[t] - v[j] - h;
+        if (vj < d[j]) {
+          d[j] = vj;
+          lab[j] = i;
+          if (vj == min_diff) {
+            if (y[j] == -1) {
+              lapjvsp_update_dual(nc, d, v, todo, last, min_diff);
+              lapjvsp_update_assignments(lab, y, x, j, i0);
+              return td1;
+            }
+            ++td1;
+            todo[td1] = j;
+            ok[j] = true;
+          }
+        }
+      }
+    }
+
+    if (td1 == -1) {
+      min_diff = INF;
+      last = td2 + 1;
+
+      for (I jp = 0; jp < nc; ++jp) {
+        if ((d[jp] != INF) && (d[jp] <= min_diff) && !ok[jp]) {
+          if (d[jp] < min_diff) {
+            td1 = -1;
+            min_diff = d[jp];
+          }
+          ++td1;
+          todo[td1] = jp;
+        }
+      }
+      for (I hp = 0; hp < td1 + 1; ++hp) {
+        j = todo[hp];
+        if (y[j] == -1) {
+          lapjvsp_update_dual(nc, d, v, todo, last, min_diff);
+          lapjvsp_update_assignments(lab, y, x, j, i0);
+          return td1;
+        }
+        ok[j] = true;
+      }
+    }
+  }
+}
+
+template <template <typename, typename> typename Container, typename I,
+          typename IA>
+void lapjvsp_update_assignments(const Container<I, IA> &lab,
+                                Container<I, IA> &y, Container<I, IA> &x, I &j,
+                                I i0) {
+  auto i = I{0};
+  auto k = I{0};
+  while (true) {
+    i = lab[j];
+    y[j] = i;
+    k = j;
+    j = x[i];
+    x[i] = k;
+    if (i == i0) {
+      return;
+    }
+  }
+}
+
+template <template <typename, typename> typename Container, typename T,
+          typename I, typename TA, typename IA>
+void lapjvsp_update_dual(I nc, const Container<T, TA> &d, Container<T, TA> &v,
+                         const Container<I, IA> &todo, I last, T min_diff) {
+  auto j0 = I{0};
+  for (I k = last; k < nc; ++k) {
+    j0 = todo[k];
+    v[j0] += (d[j0] - min_diff);
+  }
 }
 
 } // namespace internal
