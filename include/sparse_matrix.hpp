@@ -26,8 +26,6 @@ public:
                                     Eigen::Index rows,
                                     Eigen::Index cols) noexcept;
 
-  void transpose() noexcept;
-
   [[nodiscard]] std::ostream &print(std::ostream &os) const noexcept;
 
   [[nodiscard]] const auto &val() const noexcept;
@@ -42,7 +40,6 @@ private:
   std::vector<Eigen::Index> m_row_ptr{};
   Eigen::Index m_rows{};
   Eigen::Index m_cols{};
-  bool m_transposed{false};
 };
 
 template <typename T>
@@ -51,8 +48,8 @@ CompressedSparseRowRepresentation<T>::CompressedSparseRowRepresentation(
     : m_val{sm.valuePtr(), sm.valuePtr() + sm.nonZeros()},
       m_col_ind{sm.innerIndexPtr(), sm.innerIndexPtr() + sm.nonZeros()},
       m_row_ptr{sm.outerIndexPtr(), sm.outerIndexPtr() + sm.outerSize()},
-      m_rows{sm.rows()}, m_cols{sm.cols()}, m_transposed{false} {
-      m_row_ptr.push_back(m_val.size());
+      m_rows{sm.rows()}, m_cols{sm.cols()} {
+  m_row_ptr.push_back(m_val.size());
 }
 
 template <typename T>
@@ -61,13 +58,7 @@ CompressedSparseRowRepresentation<T>::CompressedSparseRowRepresentation(
     const std::vector<Eigen::Index> &row_ptr, Eigen::Index rows,
     Eigen::Index cols) noexcept
     : m_val{val}, m_col_ind{col_ind}, m_row_ptr{row_ptr}, m_rows{rows},
-      m_cols{cols}, m_transposed{false} {}
-
-template <typename T>
-void CompressedSparseRowRepresentation<T>::transpose() noexcept {
-  std::swap(m_rows, m_cols);
-  m_transposed = !m_transposed;
-}
+      m_cols{cols} {}
 
 template <typename T>
 std::ostream &

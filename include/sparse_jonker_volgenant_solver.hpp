@@ -33,15 +33,13 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 template <typename SparseMatrixT>
 std::enable_if_t<is_row_major<SparseMatrixT>, Result>
 SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
-
-  auto csr =
-      CompressedSparseRowRepresentation<typename SparseMatrixT::Scalar>{sm};
+  using ScalarT = typename SparseMatrixT::Scalar;
 
   const auto transpose = sm.rows() > sm.cols();
 
-  if (transpose) {
-    csr.transpose();
-  }
+  auto csr = (transpose)
+                 ? CompressedSparseRowRepresentation<ScalarT>{sm.transpose()}
+                 : CompressedSparseRowRepresentation<ScalarT>{sm};
 
   auto a = std::vector<Eigen::Index>(std::min(csr.rows(), csr.cols()));
   std::iota(a.begin(), a.end(), 0);
