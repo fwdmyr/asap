@@ -207,6 +207,9 @@ auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
   for (I l = 0; l < l0; ++l) {
     td1 = lapjvsp_single_l(l, nc, d, ok, free, first, kk, cc, v, lab, todo, y,
                            x, td1, valid);
+    if (!valid) {
+      return Container<I, IA>{};
+    }
   }
   return x;
 }
