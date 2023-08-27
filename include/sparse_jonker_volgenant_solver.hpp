@@ -1,3 +1,6 @@
+#ifndef ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_HPP
+#define ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_HPP
+
 #include "common.hpp"
 #include "sparse_jonker_volgenant_solver_impl.hpp"
 
@@ -31,14 +34,15 @@ template <typename SparseMatrixT>
 std::enable_if_t<is_row_major<SparseMatrixT>, Result>
 SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 
+  sm.makeCompressed();
+
   auto csr =
       CompressedSparseRowRepresentation<typename SparseMatrixT::Scalar>{sm};
 
   const auto transpose = sm.rows() > sm.cols();
 
   if (transpose) {
-    csr = CompressedSparseRowRepresentation<typename SparseMatrixT::Scalar>{
-        sm.transpose()};
+    csr.transpose();
   }
 
   auto a = std::vector<Eigen::Index>(std::min(csr.rows(), csr.cols()));
@@ -58,3 +62,5 @@ SparseJonkerVolgenantSolver::Solve(SparseMatrixT &&sm) {
 }
 
 } // namespace asap
+
+#endif

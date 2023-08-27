@@ -6,14 +6,25 @@ from scipy.sparse import csgraph
 
 
 def main():
-    indptr = np.array([0, 2, 3, 6])
-    indices = np.array([0, 2, 2, 0, 1, 2])
-    data = np.array([1, 2, 3, 4, 5, 6])
-    mat = csr_matrix((data, indices, indptr), shape=(3, 3))
-    print(mat.toarray())
-    print(mat.shape)
-    res = csgraph.min_weight_full_bipartite_matching(mat)
-    print(res)
+    m = csr_matrix([[1, 2], [3, 0], [0, 4]])
+    print(m.data)
+    print(m.indptr)
+    print(m.indices)
+    mT = m.T
+    assert np.array_equal(m.data, mT.data)
+    assert np.array_equal(m.indptr, mT.indptr)
+    assert np.array_equal(m.indices, mT.indices)
+
+    print()
+
+    m = csr_matrix([[1, 2, 0], [0, 0, 3]])
+    print(m.data)
+    print(m.indptr)
+    print(m.indices)
+    mT = m.T
+    assert np.array_equal(m.data, mT.data)
+    assert np.array_equal(m.indptr, mT.indptr)
+    assert np.array_equal(m.indices, mT.indices)
 
 
 if __name__ == "__main__":

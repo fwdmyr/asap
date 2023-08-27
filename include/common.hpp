@@ -1,9 +1,21 @@
+#ifndef ASAP_COMMON_HPP
+#define ASAP_COMMON_HPP
+
 #include <algorithm>
 #include <iterator>
 #include <numeric>
 #include <vector>
 
 namespace asap {
+
+template <template <typename, typename> typename Container, typename T,
+          typename Alloc>
+std::ostream &operator<<(std::ostream &os, const Container<T, Alloc> &c) {
+  for (const auto &e : c) {
+    os << e << ' ';
+  }
+  return os;
+}
 
 template <template <typename, typename> typename Container, typename T,
           typename Alloc = std::allocator<T>>
@@ -38,3 +50,5 @@ void reorder(Container<I, IA> order, Container<T, TA> &v) {
 }
 
 } // namespace asap
+
+#endif

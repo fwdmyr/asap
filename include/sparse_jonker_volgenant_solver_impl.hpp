@@ -1,3 +1,6 @@
+#ifndef ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_IMPL_HPP
+#define ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_IMPL_HPP
+
 #include "sparse_matrix.hpp"
 #include <iostream>
 
@@ -310,3 +313,5 @@ template <template <typename, typename> typename Container, typename T,
 } // namespace internal
 
 } // namespace asap
+
+#endif

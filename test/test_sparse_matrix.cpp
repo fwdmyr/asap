@@ -3,7 +3,7 @@
 
 namespace {
 
-TEST(TestCompressedSparseRowRepresentation, ScipyExample) {
+TEST(TestCompressedSparseRowRepresentation, ScipySquareExample) {
   auto mat = Eigen::SparseMatrix<double, Eigen::RowMajor>(3U, 3U);
   mat.insert(0U, 0U) = 1.0;
   mat.insert(0U, 2U) = 2.0;
@@ -16,7 +16,45 @@ TEST(TestCompressedSparseRowRepresentation, ScipyExample) {
   const auto expected_indices = std::vector<Eigen::Index>{0, 2, 2, 0, 1, 2};
   const auto expected_data = std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
-  const auto csr = asap::CompressedSparseRowRepresentation<double>{mat};
+  const auto csr =
+      asap::CompressedSparseRowRepresentation<double>{std::move(mat)};
+
+  EXPECT_EQ(csr.row_ptr(), expected_indptr);
+  EXPECT_EQ(csr.col_ind(), expected_indices);
+  EXPECT_EQ(csr.val(), expected_data);
+}
+
+TEST(TestCompressedSparseRowRepresentation, ScipyWideRectangularExample) {
+  auto mat = Eigen::SparseMatrix<double, Eigen::RowMajor>(2U, 3U);
+  mat.insert(0U, 0U) = 1.0;
+  mat.insert(0U, 1U) = 2.0;
+  mat.insert(1U, 2U) = 3.0;
+
+  const auto expected_indptr = std::vector<Eigen::Index>{0, 2, 3};
+  const auto expected_indices = std::vector<Eigen::Index>{0, 1, 2};
+  const auto expected_data = std::vector<double>{1.0, 2.0, 3.0};
+
+  const auto csr =
+      asap::CompressedSparseRowRepresentation<double>{std::move(mat)};
+
+  EXPECT_EQ(csr.row_ptr(), expected_indptr);
+  EXPECT_EQ(csr.col_ind(), expected_indices);
+  EXPECT_EQ(csr.val(), expected_data);
+}
+
+TEST(TestCompressedSparseRowRepresentation, ScipyTallRectangularExample) {
+  auto mat = Eigen::SparseMatrix<double, Eigen::RowMajor>(3U, 2U);
+  mat.insert(0U, 0U) = 1.0;
+  mat.insert(0U, 1U) = 2.0;
+  mat.insert(1U, 0U) = 3.0;
+  mat.insert(2U, 1U) = 4.0;
+
+  const auto expected_indptr = std::vector<Eigen::Index>{0, 2, 3, 4};
+  const auto expected_indices = std::vector<Eigen::Index>{0, 1, 0, 1};
+  const auto expected_data = std::vector<double>{1.0, 2.0, 3.0, 4.0};
+
+  const auto csr =
+      asap::CompressedSparseRowRepresentation<double>{std::move(mat)};
 
   EXPECT_EQ(csr.row_ptr(), expected_indptr);
   EXPECT_EQ(csr.col_ind(), expected_indices);
@@ -38,7 +76,8 @@ TEST(TestCompressedSparseRowRepresentation, WikipediaExample) {
   const auto expected_val =
       std::vector<double>{10.0, 12.0, 11.0, 13.0, 16.0, 11.0, 13.0};
 
-  const auto csr = asap::CompressedSparseRowRepresentation<double>{mat};
+  const auto csr =
+      asap::CompressedSparseRowRepresentation<double>{std::move(mat)};
 
   EXPECT_EQ(csr.row_ptr(), expected_row_ptr);
   EXPECT_EQ(csr.col_ind(), expected_col_ind);
