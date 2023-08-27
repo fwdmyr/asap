@@ -54,7 +54,7 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture,
            Solve_SparseWideRectangularMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
-  auto sm = SparseMatrixT(3U, 3U);
+  auto sm = SparseMatrixT(2U, 3U);
   sm.insert(0U, 0U) = 0.0;
   sm.insert(0U, 1U) = 1.0;
   sm.insert(0U, 2U) = 1.0;
@@ -74,7 +74,7 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture,
            Solve_SparseTallRectangularMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
-  auto sm = SparseMatrixT(3U, 3U);
+  auto sm = SparseMatrixT(3U, 2U);
   sm.insert(0U, 0U) = 0.0;
   sm.insert(0U, 1U) = 1.0;
   sm.insert(1U, 0U) = 3.0;

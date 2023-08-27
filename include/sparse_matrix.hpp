@@ -87,8 +87,7 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 template <typename T>
-const auto &
-CompressedSparseRowRepresentation<T>::val() const noexcept {
+const auto &CompressedSparseRowRepresentation<T>::val() const noexcept {
   return m_val;
 }
 
