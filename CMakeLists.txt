@@ -21,6 +21,7 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(HEADERS_LIST
     include/sparse_matrix.hpp
+    include/sparse_jonker_vogenant_solver_impl.hpp
   )
 
 set(TARGET_NAME asap)

@@ -15,9 +15,16 @@ TEST(TestSuiteDummy, UnitTestDummy) {
 
   const auto csr = asap::CompressedSparseRowRepresentation<double>{mat};
 
-  const auto ret = asap::lapjvsp(csr);
+  const auto ret = asap::SparseJonkerVolgenantSolver::Solve(csr);
 
-  EXPECT_TRUE(true);
+  for (std::size_t i = 0; i < ret.first.size(); ++i) {
+      std::cerr << ret.first[i] << ' ';
+  }
+  std::cerr << '\n';
+  for (std::size_t i = 0; i < ret.second.size(); ++i) {
+      std::cerr << ret.second[i] << ' ';
+  }
+  std::cerr << '\n';
 }
 
 } // namespace

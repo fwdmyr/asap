@@ -15,6 +15,7 @@ macro(package_add_test TESTNAME TESTFILE)
     add_executable(${TESTNAME} ${TESTFILE}) 
     target_link_libraries(${TESTNAME} gtest gmock gtest_main ${ARGN})
     target_compile_features(${TESTNAME} PRIVATE cxx_std_17)
+    target_compile_options(${TESTNAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${PROJECT_DIR}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
@@ -26,6 +27,7 @@ macro(package_add_test_with_libraries TESTNAME FILES LIBRARIES TEST_WORKING_DIRE
     add_executable(${TESTNAME} ${FILES})
     target_link_libraries(${TESTNAME} gtest gmock gtest_main ${LIBRARIES})
     target_compile_features(${TESTNAME} PRIVATE cxx_std_17)
+    target_compile_options(${TESTNAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
     gtest_discover_tests(${TESTNAME}
         WORKING_DIRECTORY ${TEST_WORKING_DIRECTORY}
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${TEST_WORKING_DIRECTORY}"

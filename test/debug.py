@@ -11,6 +11,7 @@ def main():
     data = np.array([1, 2, 3, 4, 5, 6])
     mat = csr_matrix((data, indices, indptr), shape=(3, 3))
     print(mat.toarray())
+    print(mat.shape)
     res = csgraph.min_weight_full_bipartite_matching(mat)
     print(res)
 
