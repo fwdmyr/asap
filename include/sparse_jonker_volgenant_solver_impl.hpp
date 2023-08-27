@@ -35,7 +35,7 @@ template <template <typename, typename> typename Container, typename T,
           typename IA = std::allocator<I>>
 [[nodiscard]] auto lapjvsp(const Container<I, IA> &first,
                            const Container<I, IA> &kk,
-                           const Container<T, TA> &cc, I nr, I nc);
+                           const Container<T, TA> &cc, I nr, I nc, bool &valid);
 
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA = std::allocator<T>,
@@ -45,7 +45,7 @@ template <template <typename, typename> typename Container, typename T,
     const Container<I, IA> &free, const Container<I, IA> &first,
     const Container<I, IA> &kk, const Container<T, TA> &cc, Container<T, TA> &v,
     Container<I, IA> &lab, Container<I, IA> &todo, Container<I, IA> &y,
-    Container<I, IA> &x, I td1);
+    Container<I, IA> &x, I td1, bool &valid);
 
 template <template <typename, typename> typename Container, typename I,
           typename IA = std::allocator<I>>
@@ -61,7 +61,7 @@ void lapjvsp_update_dual(I nc, const Container<T, TA> &d, Container<T, TA> &v,
 template <template <typename, typename> typename Container, typename T,
           typename I, typename TA, typename IA>
 auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
-             const Container<T, TA> &cc, I nr, I nc) {
+             const Container<T, TA> &cc, I nr, I nc, bool &valid) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
 
@@ -108,7 +108,8 @@ auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
     for (I z = nc - 1; z >= 0; --z) {
       i = y[z];
       if (i == -1) {
-        throw std::runtime_error("No full matching exists");
+        valid = false;
+        return Container<I, IA>{};
       }
       if (x[i] == -1) {
         x[i] = z;
@@ -171,7 +172,8 @@ auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
           }
         }
         if (j0p < 0) {
-          throw std::runtime_error("No full matching exists");
+          valid = false;
+          return Container<I, IA>{};
         }
         i0 = y[j0p];
         u[i] = vj;
@@ -204,7 +206,7 @@ auto lapjvsp(const Container<I, IA> &first, const Container<I, IA> &kk,
   td1 = -1;
   for (I l = 0; l < l0; ++l) {
     td1 = lapjvsp_single_l(l, nc, d, ok, free, first, kk, cc, v, lab, todo, y,
-                           x, td1);
+                           x, td1, valid);
   }
   return x;
 }
@@ -217,9 +219,12 @@ auto lapjvsp_single_l(I l, I nc, Container<T, TA> &d,
                       const Container<I, IA> &first, const Container<I, IA> &kk,
                       const Container<T, TA> &cc, Container<T, TA> &v,
                       Container<I, IA> &lab, Container<I, IA> &todo,
-                      Container<I, IA> &y, Container<I, IA> &x, I td1) {
+                      Container<I, IA> &y, Container<I, IA> &x, I td1,
+                      bool &valid) {
 
   static constexpr auto INF = std::numeric_limits<T>::max();
+
+  valid = true;
 
   auto i0 = I{0};
   auto j = I{0};
@@ -267,7 +272,8 @@ auto lapjvsp_single_l(I l, I nc, Container<T, TA> &d,
 
   while (true) {
     if (td1 < 0) {
-      throw std::runtime_error("No full matching exists");
+      valid = false;
+      return I{};
     }
     j0 = todo[td1];
     --td1;
