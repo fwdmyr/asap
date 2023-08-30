@@ -13,7 +13,7 @@ struct Result {
 };
 
 template <typename SparseMatrixT>
-[[nodiscard]] std::enable_if_t<is_row_major<SparseMatrixT>, Result>
+[[nodiscard]] std::enable_if_t<is_row_major_v<SparseMatrixT>, Result>
 solve_sparse_assignment_problem(SparseMatrixT &&sm) {
   using ScalarT = typename SparseMatrixT::Scalar;
 
@@ -40,7 +40,7 @@ solve_sparse_assignment_problem(SparseMatrixT &&sm) {
 }
 
 template <typename SparseMatrixT>
-[[nodiscard]] std::enable_if_t<is_col_major<SparseMatrixT>, Result>
+[[nodiscard]] std::enable_if_t<is_col_major_v<SparseMatrixT>, Result>
 solve_sparse_assignment_problem(SparseMatrixT &&sm) {
   auto sm_row_major = static_cast<
       Eigen::SparseMatrix<typename SparseMatrixT::Scalar, Eigen::RowMajor>>(sm);

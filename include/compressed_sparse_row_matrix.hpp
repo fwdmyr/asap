@@ -2,19 +2,9 @@
 #define ASAP_COMPRESSED_SPARSE_ROW_MATRIX_HPP
 
 #include "common.hpp"
-#include <Eigen/SparseCore>
-#include <cassert>
+#include "sparse_matrix_traits.hpp"
 
 namespace asap {
-
-template <typename T>
-static constexpr auto is_row_major =
-    std::is_same_v<std::decay_t<T>,
-                   Eigen::SparseMatrix<typename T::Scalar, Eigen::RowMajor>>;
-template <typename T>
-static constexpr auto is_col_major =
-    std::is_same_v<std::decay_t<T>,
-                   Eigen::SparseMatrix<typename T::Scalar, Eigen::ColMajor>>;
 
 template <typename T> struct CompressedSparseRowMatrix {
   explicit CompressedSparseRowMatrix(
