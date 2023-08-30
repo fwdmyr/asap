@@ -1,8 +1,7 @@
 #ifndef ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_IMPL_HPP
 #define ASAP_SPARSE_JONKER_VOLGENANT_SOLVER_IMPL_HPP
 
-#include "sparse_matrix.hpp"
-#include <iostream>
+#include "compressed_sparse_row_matrix.hpp"
 
 namespace asap {
 

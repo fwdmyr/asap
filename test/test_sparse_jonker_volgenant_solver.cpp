@@ -14,7 +14,8 @@ using MatrixTypes =
                      Eigen::SparseMatrix<double, Eigen::ColMajor>>;
 TYPED_TEST_SUITE(SparseJonkerVolgenantSolverFixture, MatrixTypes);
 
-TYPED_TEST(SparseJonkerVolgenantSolverFixture, Solve_EqualWeightSquareMatrix) {
+TYPED_TEST(SparseJonkerVolgenantSolverFixture,
+           SolveSparseAssignmentProblem_EqualWeightSquareMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
   auto sm = SparseMatrixT(3U, 3U);
@@ -25,12 +26,13 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture, Solve_EqualWeightSquareMatrix) {
   sm.insert(2U, 1U) = 1.0;
   const auto expected_col_idx = std::vector<Eigen::Index>{2, 0, 1};
 
-  const auto res = asap::SparseJonkerVolgenantSolver::Solve(std::move(sm));
+  const auto res = asap::solve_sparse_assignment_problem(std::move(sm));
 
   EXPECT_EQ(res.col_idx, expected_col_idx);
 }
 
-TYPED_TEST(SparseJonkerVolgenantSolverFixture, Solve_DenseSquareMatrix) {
+TYPED_TEST(SparseJonkerVolgenantSolverFixture,
+           SolveSparseAssignmentProblem_DenseSquareMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
   auto sm = SparseMatrixT(3U, 3U);
@@ -45,13 +47,13 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture, Solve_DenseSquareMatrix) {
   sm.insert(2U, 2U) = 8.0;
   const auto expected_col_idx = std::vector<Eigen::Index>{0, 2, 1};
 
-  const auto res = asap::SparseJonkerVolgenantSolver::Solve(std::move(sm));
+  const auto res = asap::solve_sparse_assignment_problem(std::move(sm));
 
   EXPECT_EQ(res.col_idx, expected_col_idx);
 }
 
 TYPED_TEST(SparseJonkerVolgenantSolverFixture,
-           Solve_SparseWideRectangularMatrix) {
+           SolveSparseAssignmentProblem_SparseWideRectangularMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
   auto sm = SparseMatrixT(2U, 3U);
@@ -62,14 +64,14 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture,
   const auto expected_row_idx = std::vector<Eigen::Index>{0, 1};
   const auto expected_col_idx = std::vector<Eigen::Index>{2, 1};
 
-  const auto res = asap::SparseJonkerVolgenantSolver::Solve(std::move(sm));
+  const auto res = asap::solve_sparse_assignment_problem(std::move(sm));
 
   EXPECT_EQ(res.row_idx, expected_row_idx);
   EXPECT_EQ(res.col_idx, expected_col_idx);
 }
 
 TYPED_TEST(SparseJonkerVolgenantSolverFixture,
-           Solve_SparseTallRectangularMatrix) {
+           SolveSparseAssignmentProblem_SparseTallRectangularMatrix) {
   using SparseMatrixT = typename TestFixture::Type;
 
   auto sm = SparseMatrixT(3U, 2U);
@@ -81,7 +83,7 @@ TYPED_TEST(SparseJonkerVolgenantSolverFixture,
   const auto expected_row_idx = std::vector<Eigen::Index>{0, 2};
   const auto expected_col_idx = std::vector<Eigen::Index>{1, 0};
 
-  const auto res = asap::SparseJonkerVolgenantSolver::Solve(std::move(sm));
+  const auto res = asap::solve_sparse_assignment_problem(std::move(sm));
 
   EXPECT_EQ(res.row_idx, expected_row_idx);
   EXPECT_EQ(res.col_idx, expected_col_idx);
