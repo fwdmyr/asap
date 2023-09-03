@@ -8,7 +8,10 @@ namespace asap {
 
 template <typename T> struct CompressedSparseRowMatrix {
   explicit CompressedSparseRowMatrix(
-      const Eigen::SparseMatrix<T, Eigen::RowMajor> &s) noexcept;
+      const Eigen::SparseMatrix<T, Eigen::RowMajor> &sm) noexcept;
+
+  explicit CompressedSparseRowMatrix(
+      Eigen::SparseMatrix<T, Eigen::RowMajor> &&sm) noexcept;
 
   std::vector<T> val{};
   std::vector<Eigen::Index> col_ind{};
@@ -20,6 +23,16 @@ template <typename T> struct CompressedSparseRowMatrix {
 template <typename T>
 CompressedSparseRowMatrix<T>::CompressedSparseRowMatrix(
     const Eigen::SparseMatrix<T, Eigen::RowMajor> &sm) noexcept
+    : val{sm.valuePtr(), sm.valuePtr() + sm.nonZeros()},
+      col_ind{sm.innerIndexPtr(), sm.innerIndexPtr() + sm.nonZeros()},
+      row_ptr{sm.outerIndexPtr(), sm.outerIndexPtr() + sm.outerSize()},
+      rows{sm.rows()}, cols{sm.cols()} {
+  row_ptr.push_back(val.size());
+}
+
+template <typename T>
+CompressedSparseRowMatrix<T>::CompressedSparseRowMatrix(
+    Eigen::SparseMatrix<T, Eigen::RowMajor> &&sm) noexcept
     : val{sm.valuePtr(), sm.valuePtr() + sm.nonZeros()},
       col_ind{sm.innerIndexPtr(), sm.innerIndexPtr() + sm.nonZeros()},
       row_ptr{sm.outerIndexPtr(), sm.outerIndexPtr() + sm.outerSize()},

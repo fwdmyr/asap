@@ -20,7 +20,7 @@ solve_sparse_assignment_problem(SparseMatrixT &&sm) {
   const auto transpose = sm.rows() > sm.cols();
 
   auto csr = (transpose) ? CompressedSparseRowMatrix<ScalarT>{sm.transpose()}
-                         : CompressedSparseRowMatrix<ScalarT>{sm};
+                         : CompressedSparseRowMatrix<ScalarT>{std::forward<SparseMatrixT>(sm)};
 
   auto a = std::vector<Eigen::Index>(std::min(csr.rows, csr.cols));
   std::iota(a.begin(), a.end(), 0);
