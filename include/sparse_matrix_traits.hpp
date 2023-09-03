@@ -1,7 +1,7 @@
 #ifndef ASAP_SPARSE_MATRIX_TRAITS_HPP
 #define ASAP_SPARSE_MATRIX_TRAITS_HPP
 
-#include <Eigen/SparseCore>
+#include <eigen3/Eigen/SparseCore>
 #include <type_traits>
 
 namespace asap {
